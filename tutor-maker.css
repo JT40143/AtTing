@@ -1,0 +1,217 @@
+/* --- 通用樣式 --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #1c1e21;
+}
+
+p.description {
+    text-align: center;
+    color: #606770;
+    margin-bottom: 30px;
+}
+
+/* --- 輸入框和按鈕樣式 --- */
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+    margin-bottom: 15px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    outline: none;
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px #e7f3ff;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#add-block-btn {
+    background-color: #42b72a;
+    color: white;
+}
+
+#add-block-btn:hover {
+    background-color: #36a420;
+}
+
+#generate-btn {
+    background-color: #1877f2;
+    color: white;
+}
+
+#generate-btn:hover {
+    background-color: #166fe5;
+}
+
+
+/* --- 編輯器區塊樣式 --- */
+#editor-container {
+    border-top: 1px solid #dddfe2;
+    padding-top: 20px;
+}
+
+.block {
+    background-color: #f7f8fa;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.block .block-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1c1e21;
+}
+
+.delete-block-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f5f6f7;
+    color: #606770;
+    border: 1px solid #dddfe2;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: center;
+}
+
+.delete-block-btn:hover {
+    background-color: #e9eaec;
+}
+
+.image-upload-wrapper {
+    margin-top: 15px;
+}
+
+.image-upload-label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #606770;
+}
+
+.block-image-input {
+    border: 1px dashed #ccd0d5;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.image-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #dddfe2;
+}
+
+
+/* --- ===== 生成頁面的樣式 ===== --- */
+/* 這部分樣式將被注入到最終生成的 HTML 檔案中 */
+
+.output-body {
+    background-color: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.output-container {
+    max-width: 700px;
+    width: 100%;
+}
+
+.output-main-title {
+    font-size: 40px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.output-main-subtitle {
+    font-size: 18px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.output-block {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.output-block-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff; /* 藍色標題 */
+    margin-bottom: 12px;
+}
+
+.output-block-content {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.output-block-image {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    margin-top: 10px;
+}
