@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>廠商請款追蹤系統 - UI原型</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': {
+                            '50': '#f0f9ff',
+                            '100': '#e0f2fe',
+                            '200': '#bae6fd',
+                            '300': '#7dd3fc',
+                            '400': '#38bdf8',
+                            '500': '#0ea5e9',
+                            '600': '#0284c7',
+                            '700': '#0369a1',
+                            '800': '#075985',
+                            '900': '#0c4a6e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+        }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .copy-feedback, .template-feedback { transition: opacity 0.3s ease-out; }
+        #calendar-grid {
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+        }
+        .calendar-event {
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            margin-top: 2px;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Sidebar Navigation -->
+        <div class="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+            <div class="flex flex-col flex-grow bg-brand-800 pt-5 pb-4 overflow-y-auto">
+                <div class="flex items-center flex-shrink-0 px-4">
+                    <svg class="h-8 w-auto text-brand-300" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    <span class="ml-3 text-white text-lg font-bold">廠商請款追蹤系統</span>
+                </div>
+                <nav class="mt-5 flex-1 flex flex-col divide-y divide-brand-700 overflow-y-auto" aria-label="Sidebar">
+                    <div class="px-2 space-y-1">
+                        <a href="#" data-view="dashboard" class="nav-link active group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                            <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            智慧儀表板
+                        </a>
+                        <a href="#" data-view="operations" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                            <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                            每月請款作業
+                        </a>
+                        <a href="#" data-view="calendar" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                            <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                            作業日曆
+                        </a>
+                        <a href="#" data-view="search" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                            <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"></line><line x1="8" x2="21" y1="12" y2="12"></line><line x1="8" x2="21" y1="18" y2="18"></line><line x1="3" x2="3.01" y1="6" y2="6"></line><line x1="3" x2="3.01" y1="12" y2="12"></line><line x1="3" x2="3.01" y1="18" y2="18"></line></svg>
+                            費用清單
+                        </a>
+                        <a href="#" data-view="vendors" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                            <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            廠商管理
+                        </a>
+                        <a href="#" data-view="reports" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                           <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+                            報表與分析
+                        </a>
+                    </div>
+                     <div class="pt-6">
+                        <div class="px-2 space-y-1">
+                           <a href="#" data-view="settings" class="nav-link group flex items-center px-2 py-2 text-sm leading-6 font-medium rounded-md">
+                                <svg class="mr-4 h-6 w-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.4l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.4l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                系統設定
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="md:pl-64 flex flex-col flex-1">
+            <main class="flex-1 pb-8">
+                <!-- Dashboard View -->
+                <div id="dashboard-view" class="view-content px-4 py-8 sm:px-6 lg:px-8">
+                    <h1 class="text-2xl font-bold text-gray-900">智慧儀表板</h1>
+                    <span class="text-gray-500">2025年10月9日 星期四</span>
+
+                    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+                             <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">本月應付總額</dt>
+                                <dd class="text-3xl font-bold text-gray-900">$ 410,500</dd>
+                            </dl>
+                        </div>
+                        <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">發票狀態 (本月)</dt>
+                                <dd class="text-lg font-semibold text-gray-900 mt-1">
+                                    <span class="text-green-600">3 張已收到</span> / <span class="text-red-600">2 張待收</span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="bg-white overflow-hidden shadow rounded-lg p-5">
+                           <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">流程進度 (本月)</dt>
+                                <dd class="text-lg font-semibold text-gray-900 mt-1">
+                                    <span class="text-blue-600">1 筆處理中</span> / <span class="text-yellow-600">2 筆待處理</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">本週任務與提醒 (10/9 - 10/16)</h3>
+                            <ul role="list" class="divide-y divide-gray-200 mt-4">
+                               <li class="py-3 flex items-center space-x-4">
+                                    <div class="flex-shrink-0"><svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.636-1.21 2.373-1.21 3.009 0l6.255 11.986c.64 1.22-.21 2.665-1.504 2.665H3.504c-1.294 0-2.144-1.445-1.504-2.665L8.257 3.099zM9 13a1 1 0 112 0 1 1 0 01-2 0zm1-6a1 1 0 00-1 1v3a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></div>
+                                    <div class="flex-1 min-w-0"><p class="text-sm font-medium text-red-700">逾期發票警告：「宇宙設計公司」本月發票已逾期 (預計5號)，請盡速追蹤。</p></div>
+                                </li>
+                                <li class="py-3 flex items-center space-x-4">
+                                    <div class="flex-shrink-0"><svg class="h-5 w-5 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"></path></svg></div>
+                                    <div class="flex-1 min-w-0"><p class="text-sm font-medium text-yellow-700">待處理款項：有 2 筆已收發票的款項需要開始請款流程。</p></div>
+                                </li>
+                                <li class="py-3 flex items-center space-x-4">
+                                     <div class="flex-shrink-0"><svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg></div>
+                                    <div class="flex-1 flex justify-between items-center">
+                                        <div><p class="text-sm font-medium text-gray-900">綠色能源科技</p><p class="text-sm text-gray-500">下次請款日: 2025-10-15 (每月)</p></div>
+                                        <span class="text-sm font-medium text-gray-500">金額待定</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">各抬頭本月付款分析</h3>
+                            <ul role="list" class="divide-y divide-gray-200 mt-4">
+                                <li class="py-3 flex justify-between items-center"><p class="text-sm font-medium text-gray-900">藍圖科技有限公司</p><span class="text-lg font-semibold text-gray-700">$200,000</span></li>
+                                <li class="py-3 flex justify-between items-center"><p class="text-sm font-medium text-gray-900">創新未來股份有限公司</p><span class="text-lg font-semibold text-gray-700">$210,500</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Operations View -->
+                <div id="operations-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                     <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold text-gray-900">每月請款作業</h1>
+                        <div class="flex items-center space-x-2"><select class="rounded-md border-gray-300"><option>2025</option></select><select class="rounded-md border-gray-300"><option>10</option></select></div>
+                    </div>
+                    <div class="mt-6 flow-root"><div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><div class="space-y-6" id="operations-list"></div></div></div></div>
+                </div>
+                
+                <!-- Calendar View -->
+                <div id="calendar-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                     <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-bold text-gray-900">作業日曆</h1>
+                        <div class="flex items-center space-x-2">
+                             <select id="calendar-vendor-filter" class="rounded-md border-gray-300"><option value="all">所有廠商</option></select>
+                             <select id="calendar-entity-filter" class="rounded-md border-gray-300"><option value="all">所有抬頭</option></select>
+                             <input type="month" id="calendar-month-picker" class="rounded-md border-gray-300" value="2025-10">
+                        </div>
+                    </div>
+                    <div class="mt-6 bg-white p-6 shadow rounded-lg">
+                        <div id="calendar-header" class="grid grid-cols-7 text-center font-semibold text-gray-600 border-b pb-2 mb-2">
+                            <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                            <!-- Calendar days will be generated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search View -->
+                <div id="search-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                    <h1 class="text-2xl font-bold text-gray-900">費用清單 (資料查找)</h1>
+                     <div class="mt-6 p-6 bg-white rounded-lg shadow">
+                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                             <div>
+                                <label class="text-sm font-medium">年份</label>
+                                <select id="search-year-select" class="mt-1 w-full rounded-md border-gray-300"></select>
+                            </div>
+                             <div><label class="text-sm font-medium">起始日期</label><input type="date" id="search-start-date" class="mt-1 w-full rounded-md border-gray-300"></div>
+                             <div><label class="text-sm font-medium">結束日期</label><input type="date" id="search-end-date" class="mt-1 w-full rounded-md border-gray-300"></div>
+                             <div><label class="text-sm font-medium">廠商</label><select id="search-vendor-filter" class="mt-1 w-full rounded-md border-gray-300"><option>所有廠商</option></select></div>
+                             <div><label class="text-sm font-medium">抬頭</label><select id="search-entity-filter" class="mt-1 w-full rounded-md border-gray-300"><option>所有抬頭</option></select></div>
+                         </div>
+                    </div>
+                    <div id="search-batch-actions-container" class="mt-4">
+                        <!-- Batch actions will be inserted here -->
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-sm text-gray-700">
+                            共 <span id="search-total-records" class="font-bold">0</span> 筆資料，
+                            總金額: <span id="search-total-amount" class="font-bold">0</span> 元
+                        </div>
+                    </div>
+                    <div class="mt-2 flex flex-col">
+                        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                            <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="relative px-6 sm:w-12 sm:px-8">
+                                                    <input type="checkbox" id="search-select-all" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                                                </th>
+                                                <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">請款項目</th>
+                                                <th class="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">廠商</th>
+                                                <th class="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">抬頭</th>
+                                                <th class="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">金額</th>
+                                                <th class="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">發票收到日</th>
+                                                <th class="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">送財務日</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="search-table-body" class="divide-y divide-gray-200 bg-white">
+                                            <!-- Search results will be generated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                 <nav id="search-pagination" class="mt-4 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+                                     <!-- Pagination controls will be generated here -->
+                                 </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vendor Management View -->
+                <div id="vendors-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                     <div class="sm:flex sm:items-center">
+                        <div class="sm:flex-auto"><h1 class="text-2xl font-bold text-gray-900">廠商管理</h1><p class="mt-2 text-sm text-gray-700">管理所有合作廠商的基礎資訊與付款週期。</p></div>
+                        <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none"><button type="button" id="add-vendor-button" class="inline-flex items-center justify-center rounded-md border bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700">新增廠商</button></div>
+                    </div>
+                     <div class="mt-8 flex flex-col"><div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"><div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"><table class="min-w-full divide-y divide-gray-300"><thead class="bg-gray-50"><tr><th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">廠商名稱</th><th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">付款週期</th><th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">下次請款日</th><th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">合約狀態</th><th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">編輯</span></th></tr></thead><tbody class="divide-y divide-gray-200 bg-white" id="vendor-table-body"></tbody></table></div></div></div></div>
+                </div>
+
+                <!-- Reports View -->
+                <div id="reports-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                    <h1 class="text-2xl font-bold text-gray-900">報表與分析</h1>
+                    <div class="mt-6 p-6 bg-white rounded-lg shadow">
+                         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                             <div>
+                                <label for="report-year-select" class="text-sm font-medium">年份快速篩選</label>
+                                <select id="report-year-select" class="mt-1 w-full rounded-md border-gray-300"></select>
+                            </div>
+                             <div><label class="text-sm font-medium">起始日期</label><input type="date" id="report-start-date" class="mt-1 w-full rounded-md border-gray-300"></div>
+                             <div><label class="text-sm font-medium">結束日期</label><input type="date" id="report-end-date" class="mt-1 w-full rounded-md border-gray-300"></div>
+                             <div><label class="text-sm font-medium">廠商</label><select class="mt-1 w-full rounded-md border-gray-300"><option>所有廠商</option></select></div>
+                             <button class="w-full bg-brand-600 text-white px-4 py-2 rounded-md hover:bg-brand-700">查詢</button>
+                         </div>
+                    </div>
+                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium">總費用趨勢分析 (所有款項)</h3>
+                            <div class="mt-4" style="height: 300px;"><canvas id="trendsChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium">廠商費用佔比 (依期間查詢)</h3>
+                            <div class="mt-4" style="height: 300px;"><canvas id="distributionChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium">固定成本趨勢分析 (基於請款範本)</h3>
+                            <div class="mt-4" style="height: 300px;"><canvas id="recurringCostChart"></canvas></div>
+                        </div>
+                        <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium">各抬頭月度費用趨勢</h3>
+                            <div class="mt-4" style="height: 300px;"><canvas id="billingEntityMonthlyChart"></canvas></div>
+                        </div>
+                         <div class="bg-white p-6 shadow rounded-lg lg:col-span-2">
+                            <h3 class="text-lg font-medium">各抬頭累計費用趨勢</h3>
+                            <div class="mt-4" style="height: 300px;"><canvas id="billingEntityCumulativeChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings View -->
+                <div id="settings-view" class="view-content hidden px-4 py-8 sm:px-6 lg:px-8">
+                     <h1 class="text-2xl font-bold text-gray-900">系統設定</h1>
+                     <div class="mt-8 space-y-8">
+                         <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900">管理請款抬頭</h3>
+                            <p class="text-sm text-gray-500 mt-1">此處設定的抬頭將會顯示在「每月請款作業」的下拉選單中。</p>
+                            <div class="mt-4 space-y-3" id="billing-entities-list"></div>
+                            <div class="mt-4 flex">
+                                <input type="text" id="new-billing-entity" placeholder="新增抬頭名稱" class="w-full rounded-md border-gray-300">
+                                <button id="add-billing-entity-btn" class="ml-2 bg-brand-600 text-white px-4 py-2 rounded-md">新增</button>
+                            </div>
+                         </div>
+                         <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900">作業連結設定</h3>
+                            <p class="text-sm text-gray-500 mt-1">設定後，在「每月請款作業」頁面可直接點擊連結前往。</p>
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label for="setting-notion-url" class="block text-sm font-medium text-gray-700">Notion 工作區/頁面連結</label>
+                                    <input type="url" id="setting-notion-url" placeholder="https://www.notion.so/..." class="mt-1 w-full rounded-md border-gray-300">
+                                </div>
+                                <div>
+                                    <label for="setting-cloud-url" class="block text-sm font-medium text-gray-700">雲端空間資料夾連結</label>
+                                    <input type="url" id="setting-cloud-url" placeholder="https://www.dropbox.com/..." class="mt-1 w-full rounded-md border-gray-300">
+                                </div>
+                            </div>
+                             <div class="mt-6 text-right">
+                                <button id="save-links-btn" class="bg-brand-600 text-white px-5 py-2 rounded-md">儲存連結</button>
+                             </div>
+                         </div>
+                         <div class="bg-white p-6 shadow rounded-lg">
+                            <h3 class="text-lg font-medium text-gray-900">自動化 Email 提醒設定</h3>
+                             <div class="mt-4">
+                                <label class="text-sm font-medium">接收提醒的 Email (可用逗號分隔多個信箱)</label>
+                                <textarea rows="3" class="mt-1 w-full rounded-md border-gray-300">finance@mycompany.com, ceo@mycompany.com</textarea>
+                             </div>
+                             <div class="mt-4 space-y-2">
+                                <label class="text-sm font-medium">要接收的通知類型：</label>
+                                <div class="flex items-center"><input type="checkbox" checked class="h-4 w-4 rounded border-gray-300"><span class="ml-2">逾期發票警告</span></div>
+                                <div class="flex items-center"><input type="checkbox" checked class="h-4 w-4 rounded border-gray-300"><span class="ml-2">週度任務彙報</span></div>
+                             </div>
+                             <div class="mt-6 text-right">
+                                <button class="bg-brand-600 text-white px-5 py-2 rounded-md">儲存提醒設定</button>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Vendor Modal -->
+    <div id="vendor-modal" class="modal fixed inset-0 z-10 bg-gray-500 bg-opacity-75 items-center justify-center overflow-y-auto p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+            <div class="p-6">
+                <div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-900" id="vendor-modal-title">新增廠商</h2><button id="close-vendor-modal" class="text-gray-400">&times;</button></div>
+                <form id="vendor-form" class="mt-6 space-y-4">
+                    <input type="hidden" id="vendor-id">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium">廠商名稱 *</label><input type="text" id="vendor-name" class="mt-1 w-full rounded-md border-gray-300" required></div>
+                        <div><label class="block text-sm font-medium">付款週期 *</label><select id="vendor-cycle" class="mt-1 w-full rounded-md border-gray-300" required><option>每月</option><option>每年</option><option>N年合約</option></select></div>
+                        <div><label class="block text-sm font-medium">預計發票寄達日</label><input type="number" id="vendor-invoice-day" class="mt-1 w-full rounded-md border-gray-300" min="1" max="31"></div>
+                        <div><label class="block text-sm font-medium">下次請款日 *</label><input type="date" id="vendor-next-payment" class="mt-1 w-full rounded-md border-gray-300" required></div>
+                        <div><label class="block text-sm font-medium">合約起始日</label><input type="date" id="vendor-contract-start" class="mt-1 w-full rounded-md border-gray-300"></div>
+                        <div><label class="block text-sm font-medium">合約結束日</label><input type="date" id="vendor-contract-end" class="mt-1 w-full rounded-md border-gray-300"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-gray-200 mt-6">
+                <h3 class="font-medium text-gray-900">請款範本管理</h3>
+                <div id="template-list" class="mt-4 space-y-2"></div>
+                <div class="mt-4 flex items-end gap-2">
+                    <div class="flex-grow"><label class="text-xs">範本名稱</label><input type="text" id="new-template-name" class="w-full text-sm p-1 border-gray-300 rounded"></div>
+                    <div class="flex-grow"><label class="text-xs">請款項目</label><input type="text" id="new-template-item" class="w-full text-sm p-1 border-gray-300 rounded"></div>
+                    <div class="w-28"><label class="text-xs">預設金額</label><input type="number" id="new-template-amount" class="w-full text-sm p-1 border-gray-300 rounded"></div>
+                    <button type="button" id="add-template-btn" class="bg-gray-200 px-3 py-1 rounded">新增範本</button>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3"><button type="button" id="cancel-vendor-form" class="bg-white border rounded-md px-4 py-2">取消</button><button type="submit" form="vendor-form" class="bg-brand-600 text-white rounded-md px-4 py-2">儲存廠商</button></div>
+        </div>
+    </div>
+    
+    <!-- Apply Template Modal -->
+    <div id="template-modal" class="modal fixed inset-0 z-20 bg-gray-500 bg-opacity-75 items-start justify-center pt-20">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-4 border-b">
+                <h3 class="font-medium">套用請款範本</h3>
+            </div>
+            <div id="template-options-list" class="p-4 max-h-60 overflow-y-auto"></div>
+            <div class="bg-gray-50 p-3 text-right">
+                <button id="close-template-modal" class="bg-white border rounded px-3 py-1">關閉</button>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Mock Data ---
+    let vendors = [
+        { id: 1, name: '宇宙設計公司', cycle: '每月', invoiceDay: 5, nextPayment: '2025-10-05', status: 'active', templates: [ {id: 1, name: '月費', item: '網站維護月費', amount: 80000} ] },
+        { id: 2, name: '綠色能源科技', cycle: '每月', invoiceDay: 20, nextPayment: '2025-10-15', status: 'active', templates: [] },
+        { id: 3, name: '時間軸文創工作室', cycle: '每年', nextPayment: '2025-11-01', status: 'active', templates: [] },
+        { id: 4, name: '國際法律事務所', cycle: 'N年合約', nextPayment: '2026-01-05', status: 'active', templates: [] },
+    ];
+    let allPayments = [
+        { id: 101, vendorId: 1, billingEntityId: 1, invoiceNumber: 'INV-0087', item: '十月網站維護費', amount: 80000, status: 'received', timestamps: { added: '2025-10-01', invoiceReceived: '2025-10-06', notion: '2025-10-07', form: null, cloud: null, submitted: null} },
+        { id: 102, vendorId: 1, billingEntityId: 1, invoiceNumber: 'INV-0092', item: '廣告素材設計', amount: 120000, status: 'pending', timestamps: { added: '2025-10-02', invoiceReceived: null, notion: null, form: null, cloud: null, submitted: null} },
+        { id: 103, vendorId: 2, billingEntityId: 2, invoiceNumber: 'GN-5514', item: '太陽能板月租', amount: 210500, status: 'pending', timestamps: { added: '2025-10-03', invoiceReceived: null, notion: null, form: null, cloud: null, submitted: null} },
+        { id: 104, vendorId: 1, billingEntityId: 1, invoiceNumber: 'INV-0075', item: '九月網站維護費', amount: 80000, status: 'received', timestamps: { added: '2025-09-01', invoiceReceived: '2025-09-05', notion: '2025-09-06', form: '2025-09-07', cloud: '2025-09-08', submitted: '2025-09-10'} },
+        { id: 105, vendorId: 2, billingEntityId: 2, invoiceNumber: 'GN-5401', item: '九月太陽能板月租', amount: 210500, status: 'received', timestamps: { added: '2025-09-02', invoiceReceived: '2025-09-21', notion: '2025-09-22', form: '2025-09-22', cloud: '2025-09-23', submitted: '2025-09-25'} },
+    ];
+    let billingEntities = [
+        {id: 1, name: '藍圖科技有限公司'},
+        {id: 2, name: '創新未來股份有限公司'},
+    ];
+    let settings = {
+        notionUrl: 'https://www.notion.so/your-workspace-id',
+        cloudUrl: 'https://www.dropbox.com/your-folder-id'
+    };
+    let currentEditingVendorId = null;
+    
+    const elements = {
+        navLinks: document.querySelectorAll('.nav-link'),
+        views: document.querySelectorAll('.view-content'),
+        vendorModal: document.getElementById('vendor-modal'),
+        addVendorBtn: document.getElementById('add-vendor-button'),
+        closeVendorModalBtn: document.getElementById('close-vendor-modal'),
+        cancelVendorFormBtn: document.getElementById('cancel-vendor-form'),
+        vendorForm: document.getElementById('vendor-form'),
+        vendorTableBody: document.getElementById('vendor-table-body'),
+        operationsList: document.getElementById('operations-list'),
+        templateModal: document.getElementById('template-modal'),
+        closeTemplateModalBtn: document.getElementById('close-template-modal'),
+        templateOptionsList: document.getElementById('template-options-list'),
+        billingEntitiesList: document.getElementById('billing-entities-list'),
+        addBillingEntityBtn: document.getElementById('add-billing-entity-btn'),
+        saveLinksBtn: document.getElementById('save-links-btn'),
+        calendarGrid: document.getElementById('calendar-grid'),
+        calendarMonthPicker: document.getElementById('calendar-month-picker'),
+        searchView: document.getElementById('search-view'),
+        searchTableBody: document.getElementById('search-table-body'),
+        searchPagination: document.getElementById('search-pagination'),
+        searchTotalRecords: document.getElementById('search-total-records'),
+        searchTotalAmount: document.getElementById('search-total-amount'),
+        searchBatchActionsContainer: document.getElementById('search-batch-actions-container'),
+    };
+    
+    // --- Navigation ---
+    elements.navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const viewId = link.dataset.view;
+            elements.navLinks.forEach(nav => nav.classList.remove('active', 'bg-brand-900', 'text-white'));
+            link.classList.add('active', 'bg-brand-900', 'text-white');
+            elements.views.forEach(view => view.classList.add('hidden'));
+            document.getElementById(`${viewId}-view`).classList.remove('hidden');
+        });
+    });
+
+    // --- Charts ---
+    const renderCharts = () => {
+        if (window.trendsChart) window.trendsChart.destroy();
+        if (window.distributionChart) window.distributionChart.destroy();
+        if (window.recurringCostChart) window.recurringCostChart.destroy();
+        if (window.billingEntityMonthlyChart) window.billingEntityMonthlyChart.destroy();
+        if (window.billingEntityCumulativeChart) window.billingEntityCumulativeChart.destroy();
+
+        const monthLabels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+        window.trendsChart = new Chart('trendsChart', { type: 'line', data: { labels: monthLabels, datasets: [{ label: '月度總費用', data: [360500, 305500, 290500, 305500, 290500, 410500], tension: 0.1, fill: false, borderColor: '#0284c7' }] } });
+        window.distributionChart = new Chart('distributionChart', { type: 'bar', data: { labels: ['宇宙設計', '綠色能源'], datasets: [{ label: '期間總費用', data: [280000, 421000], backgroundColor: ['#0369a1', '#0ea5e9'] }] }, options: { indexAxis: 'y' } });
+        window.recurringCostChart = new Chart('recurringCostChart', { type: 'bar', data: { labels: monthLabels, datasets: [{ label: '每月固定成本', data: Array(6).fill(80000), backgroundColor: '#bae6fd' }] } });
+        window.billingEntityMonthlyChart = new Chart('billingEntityMonthlyChart', { type: 'line', data: { labels: monthLabels, datasets: [ { label: '藍圖科技', data: [150000, 80000, 80000, 95000, 80000, 200000], borderColor: '#0284c7', fill:false }, { label: '創新未來', data: [210500, 225000, 210500, 210500, 210500, 210500], borderColor: '#38bdf8', fill:false } ] } });
+        window.billingEntityCumulativeChart = new Chart('billingEntityCumulativeChart', { type: 'line', data: { labels: monthLabels, datasets: [ { label: '藍圖科技', data: [150000, 230000, 310000, 405000, 485000, 685000], borderColor: '#0284c7', fill:false }, { label: '創新未來', data: [210500, 435500, 646000, 856500, 1067000, 1277500], borderColor: '#38bdf8', fill:false } ] } });
+    };
+    
+    // --- Vendor Modal & Templates ---
+    const openVendorModal = (vendor = null) => {
+        currentEditingVendorId = vendor ? vendor.id : null;
+        elements.vendorModal.classList.add('active');
+        document.getElementById('vendor-modal-title').textContent = vendor ? '編輯廠商' : '新增廠商';
+    };
+    const closeVendorModal = () => elements.vendorModal.classList.remove('active');
+    elements.addVendorBtn.addEventListener('click', () => openVendorModal());
+    elements.closeVendorModalBtn.addEventListener('click', closeVendorModal);
+    elements.cancelVendorFormBtn.addEventListener('click', closeVendorModal);
+    elements.vendorForm.addEventListener('submit', (e) => { e.preventDefault(); closeVendorModal(); });
+    
+    // --- Operations & Template Modal ---
+    const openTemplateModal = () => elements.templateModal.classList.add('active');
+    elements.closeTemplateModalBtn.addEventListener('click', () => elements.templateModal.classList.remove('active'));
+    
+    // --- Settings ---
+    const renderSettings = () => {
+        document.getElementById('setting-notion-url').value = settings.notionUrl;
+        document.getElementById('setting-cloud-url').value = settings.cloudUrl;
+    };
+    const renderBillingEntities = () => {
+        elements.billingEntitiesList.innerHTML = '';
+        billingEntities.forEach(be => {
+            elements.billingEntitiesList.innerHTML += `<div class="flex justify-between items-center p-2 bg-gray-50 rounded"><span>${be.name}</span><button class="text-red-500">刪除</button></div>`;
+        });
+    };
+    elements.addBillingEntityBtn.addEventListener('click', () => {
+        const input = document.getElementById('new-billing-entity');
+        if(input.value) {
+            billingEntities.push({id: Date.now(), name: input.value});
+            input.value = '';
+            renderBillingEntities();
+        }
+    });
+    if(elements.saveLinksBtn) {
+        elements.saveLinksBtn.addEventListener('click', () => {
+            settings.notionUrl = document.getElementById('setting-notion-url').value;
+            settings.cloudUrl = document.getElementById('setting-cloud-url').value;
+            alert('連結已儲存！');
+            renderOperations();
+        });
+    }
+
+    // --- Data Rendering ---
+    const renderVendorTable = () => {
+        elements.vendorTableBody.innerHTML = '';
+        vendors.filter(v => v.status === 'active').forEach(vendor => {
+            elements.vendorTableBody.innerHTML += `<tr>
+                <td class="py-4 pl-6 text-sm font-medium text-gray-900">${vendor.name}</td>
+                <td class="px-3 py-4 text-sm text-gray-500">${vendor.cycle}</td>
+                <td class="px-3 py-4 text-sm text-gray-500">${vendor.nextPayment}</td>
+                <td class="px-3 py-4 text-sm text-gray-500">N/A</td>
+                <td class="py-4 pr-6 text-right text-sm font-medium"><a href="#" data-vendor-id="${vendor.id}" class="edit-vendor-btn text-brand-600 hover:text-brand-900">編輯</a></td>
+            </tr>`;
+        });
+        document.querySelectorAll('.edit-vendor-btn').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.preventDefault();
+                openVendorModal(vendors.find(v => v.id == btn.dataset.vendorId));
+            });
+        });
+    };
+    
+    const renderOperations = () => {
+        elements.operationsList.innerHTML = '';
+        const currentPayments = allPayments.filter(p => p.timestamps.added.startsWith('2025-10'));
+        const vendorsForMonth = [...new Set(currentPayments.map(p => p.vendorId))].map(id => vendors.find(v => v.id === id));
+
+        vendorsForMonth.forEach(vendor => {
+            if(!vendor) return;
+            const vendorPayments = currentPayments.filter(p => p.vendorId === vendor.id);
+            const billingEntityOptions = billingEntities.map(be => `<option value="${be.id}">${be.name}</option>`).join('');
+            
+            elements.operationsList.innerHTML += `<div class="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg">
+                <div class="p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 vendor-select-all" data-vendor-id="${vendor.id}">
+                        <h3 class="text-lg font-semibold text-gray-900">${vendor.name}</h3>
+                    </div>
+                    <div class="batch-actions hidden" data-vendor-id="${vendor.id}">
+                        <select class="batch-action-select rounded-md border-gray-300 shadow-sm text-sm">
+                            <option value="">批次操作...</option>
+                            <option value="notion">登記 Notion</option>
+                            <option value="form">登記 請款單</option>
+                            <option value="cloud">存 雲端</option>
+                            <option value="submitted">送 財務</option>
+                        </select>
+                        <button class="batch-action-apply ml-2 bg-brand-600 text-white px-3 py-1 text-sm rounded-md">套用</button>
+                    </div>
+                    <div class="flex gap-2 single-actions">
+                        <button data-vendor-id="${vendor.id}" class="apply-template-btn">套用範本</button>
+                        <button>新增發票</button>
+                    </div>
+                </div>
+                <div class="border-t">
+                    <dl class="divide-y divide-gray-200">
+                       ${vendorPayments.map(p => {
+                            const statusHtml = p.status === 'received' ? `<div class="p-2 rounded-md bg-green-100 text-green-800 text-center">已收到<br><span class="text-xs">${p.timestamps.invoiceReceived}</span></div>` : `<button class="w-full p-2 rounded-md bg-yellow-100 text-yellow-800 hover:bg-yellow-200">登記收到</button>`;
+                            return `<div class="payment-row flex items-center px-4 py-3" data-payment-id="${p.id}">
+                                <div class="pr-4">
+                                    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand-600 payment-checkbox" data-payment-id="${p.id}" data-vendor-id="${vendor.id}">
+                                </div>
+                                <div class="flex-grow grid grid-cols-12 gap-4 items-center">
+                                    <dt class="col-span-2">${statusHtml}</dt>
+                                    <dd class="col-span-10 grid grid-cols-12 gap-x-4 items-end">
+                                        <div class="col-span-2"><label class="text-xs">請款項目</label><input type="text" value="${p.item}" class="w-full p-1 text-sm bg-gray-50 rounded"></div>
+                                        <div class="col-span-2"><label class="text-xs">抬頭</label><select class="w-full p-1 text-sm bg-gray-50 rounded">${billingEntityOptions}</select></div>
+                                        <div class="col-span-2"><label class="text-xs">發票號碼</label><input type="text" value="${p.invoiceNumber}" class="w-full p-1 text-sm bg-gray-50 rounded"></div>
+                                        <div class="col-span-2"><label class="text-xs">請款金額</label><input type="number" value="${p.amount}" class="w-full p-1 text-sm bg-gray-50 rounded"></div>
+                                        <div class="col-span-3 flex justify-between text-sm">
+                                            <label class="flex items-center"><input type="checkbox" ${p.timestamps.notion ? 'checked' : ''}><a href="${settings.notionUrl}" target="_blank" class="ml-1">Notion</a></label>
+                                            <label class="flex items-center"><input type="checkbox" ${p.timestamps.form ? 'checked' : ''}><span class="ml-1">請款單</span></label>
+                                            <label class="flex items-center"><input type="checkbox" ${p.timestamps.cloud ? 'checked' : ''}><a href="${settings.cloudUrl}" target="_blank" class="ml-1">雲端</a></label>
+                                            <label class="flex items-center"><input type="checkbox" ${p.timestamps.submitted ? 'checked' : ''}><span class="ml-1">送財務</span></label>
+                                        </div>
+                                        <div class="col-span-1"><button class="copy-btn">複製</button></div>
+                                    </dd>
+                                </div>
+                            </div>`;
+                       }).join('')}
+                    </dl>
+                </div>
+            </div>`;
+        });
+    };
+
+    // --- Calendar Logic ---
+    const renderCalendar = () => {
+        const monthValue = elements.calendarMonthPicker.value;
+        const [year, month] = monthValue.split('-').map(Number);
+        elements.calendarGrid.innerHTML = '';
+        const firstDay = new Date(year, month - 1, 1).getDay();
+        const daysInMonth = new Date(year, month, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+            elements.calendarGrid.innerHTML += `<div class="border bg-gray-50 rounded-lg"></div>`;
+        }
+        
+        const eventMap = { invoiceReceived: { label: '發票', color: 'bg-green-100' }, notion: { label: 'Notion', color: 'bg-gray-100' }, form: { label: '請款單', color: 'bg-blue-100' }, cloud: { label: '雲端', color: 'bg-sky-100' }, submitted: { label: '送財務', color: 'bg-purple-100' } };
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.className = 'border p-2 h-32 rounded-lg overflow-y-auto';
+            dayCell.innerHTML = `<div class="font-semibold text-right">${day}</div>`;
+            const currentDate = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            allPayments.forEach(p => {
+                const vendor = vendors.find(v => v.id === p.vendorId);
+                for (const [key, eventInfo] of Object.entries(eventMap)) {
+                    if (p.timestamps[key] === currentDate) {
+                        dayCell.innerHTML += `<div class="calendar-event ${eventInfo.color}">${eventInfo.label}: ${vendor.name}</div>`;
+                    }
+                }
+            });
+            elements.calendarGrid.appendChild(dayCell);
+        }
+    };
+    elements.calendarMonthPicker.addEventListener('change', renderCalendar);
+    
+    // --- Search Logic ---
+    const renderSearchList = (page = 1) => {
+        const ITEMS_PER_PAGE = 10;
+        const filteredPayments = allPayments;
+        elements.searchTotalRecords.textContent = filteredPayments.length;
+        const totalAmount = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+        elements.searchTotalAmount.textContent = totalAmount.toLocaleString();
+        
+        const paginatedPayments = filteredPayments.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+        elements.searchTableBody.innerHTML = '';
+        paginatedPayments.forEach(p => {
+            const vendor = vendors.find(v => v.id === p.vendorId);
+            const entity = billingEntities.find(be => be.id === p.billingEntityId);
+            elements.searchTableBody.innerHTML += `<tr>
+                <td class="relative px-7 sm:w-12 sm:px-6">
+                    <input type="checkbox" class="search-checkbox absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300" data-payment-id="${p.id}">
+                </td>
+                <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">${p.item}</td>
+                <td class="px-2 py-4 text-sm text-gray-500">${vendor.name}</td>
+                <td class="px-2 py-4 text-sm text-gray-500">${entity.name}</td>
+                <td class="px-2 py-4 text-sm text-gray-500">${p.amount.toLocaleString()}</td>
+                <td class="px-2 py-4 text-sm text-gray-500">${p.timestamps.invoiceReceived || '-'}</td>
+                <td class="px-2 py-4 text-sm text-gray-500">${p.timestamps.submitted || '-'}</td>
+            </tr>`;
+        });
+        
+        const pageCount = Math.ceil(filteredPayments.length / ITEMS_PER_PAGE);
+        elements.searchPagination.innerHTML = '';
+        for (let i = 1; i <= pageCount; i++) {
+            elements.searchPagination.innerHTML += `<button class="px-3 py-1 border ${i === page ? 'bg-brand-100 text-brand-700' : ''}">${i}</button>`;
+        }
+    };
+    
+    // --- Batch Actions Logic (NEW) ---
+    const setupBatchActions = () => {
+        // Operations View
+        elements.operationsList.addEventListener('change', e => {
+            const target = e.target;
+            if (target.matches('.payment-checkbox') || target.matches('.vendor-select-all')) {
+                const vendorId = target.dataset.vendorId;
+                const vendorCard = target.closest('.bg-white');
+                const paymentCheckboxes = vendorCard.querySelectorAll('.payment-checkbox');
+                const selectAllCheckbox = vendorCard.querySelector('.vendor-select-all');
+                
+                if (target.matches('.vendor-select-all')) {
+                    paymentCheckboxes.forEach(cb => cb.checked = target.checked);
+                }
+                
+                const checkedCount = [...paymentCheckboxes].filter(cb => cb.checked).length;
+                
+                if (checkedCount > 0) {
+                    vendorCard.querySelector('.batch-actions').classList.remove('hidden');
+                    vendorCard.querySelector('.single-actions').classList.add('hidden');
+                } else {
+                    vendorCard.querySelector('.batch-actions').classList.add('hidden');
+                    vendorCard.querySelector('.single-actions').classList.remove('hidden');
+                }
+                
+                selectAllCheckbox.checked = checkedCount === paymentCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < paymentCheckboxes.length;
+            }
+        });
+        
+        elements.operationsList.addEventListener('click', e => {
+            if (e.target.matches('.batch-action-apply')) {
+                const vendorCard = e.target.closest('.bg-white');
+                const selectedAction = vendorCard.querySelector('.batch-action-select').value;
+                const checkedCheckboxes = vendorCard.querySelectorAll('.payment-checkbox:checked');
+                if (!selectedAction || checkedCheckboxes.length === 0) {
+                    alert('請選擇一個操作並勾選項目');
+                    return;
+                }
+                alert(`將對 ${checkedCheckboxes.length} 個項目執行 "${selectedAction}" 操作 (原型)`);
+            }
+        });
+
+        // Search View
+        const updateSearchBatchUI = () => {
+            const allCheckboxes = elements.searchView.querySelectorAll('.search-checkbox');
+            const checkedCheckboxes = [...allCheckboxes].filter(cb => cb.checked);
+            const selectAll = document.getElementById('search-select-all');
+            
+            if (checkedCheckboxes.length > 0) {
+                elements.searchBatchActionsContainer.innerHTML = `
+                    <div class="p-2 bg-gray-100 rounded-md flex items-center gap-4">
+                        <span class="text-sm font-medium">${checkedCheckboxes.length} 個項目已選取</span>
+                        <select id="search-batch-action-select" class="rounded-md border-gray-300 shadow-sm text-sm">
+                            <option value="">批次操作...</option>
+                            <option value="submitted">標記為 送交財務</option>
+                        </select>
+                        <button id="search-batch-apply" class="bg-brand-600 text-white px-3 py-1 text-sm rounded-md">套用</button>
+                    </div>`;
+            } else {
+                elements.searchBatchActionsContainer.innerHTML = '';
+            }
+            
+            selectAll.checked = allCheckboxes.length > 0 && checkedCheckboxes.length === allCheckboxes.length;
+            selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+        };
+
+        elements.searchView.addEventListener('change', e => {
+            if (e.target.matches('#search-select-all')) {
+                elements.searchView.querySelectorAll('.search-checkbox').forEach(cb => cb.checked = e.target.checked);
+            }
+            if (e.target.matches('.search-checkbox') || e.target.matches('#search-select-all')) {
+                updateSearchBatchUI();
+            }
+        });
+
+        elements.searchBatchActionsContainer.addEventListener('click', e => {
+            if (e.target.matches('#search-batch-apply')) {
+                 const selectedAction = document.getElementById('search-batch-action-select').value;
+                 const checkedCount = elements.searchView.querySelectorAll('.search-checkbox:checked').length;
+                 if(!selectedAction || checkedCount === 0) return;
+                 alert(`將對 ${checkedCount} 個項目執行 "${selectedAction}" 操作 (原型)`);
+            }
+        });
+    };
+
+    // --- UI Setup ---
+    const setupYearSelector = (selectId) => {
+        const yearSelect = document.getElementById(selectId);
+        if (!yearSelect) return;
+        const currentYear = 2025;
+        const years = [currentYear, currentYear - 1, currentYear - 2];
+        yearSelect.innerHTML = years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('');
+    };
+
+    // --- Initial Render ---
+    const init = () => {
+        const currentYear = new Date().getFullYear();
+        document.getElementById('report-start-date').value = `${currentYear}-01-01`;
+        document.getElementById('report-end-date').value = `${currentYear}-12-31`;
+        setupYearSelector('report-year-select');
+        setupYearSelector('search-year-select');
+        
+        renderVendorTable();
+        renderOperations();
+        renderCharts();
+        renderBillingEntities();
+        renderSettings();
+        renderCalendar();
+        renderSearchList(1);
+        setupBatchActions();
+        
+        document.querySelector('.nav-link[data-view="dashboard"]').click();
+    };
+    
+    init();
+});
+</script>
+</body>
+</html>
+
