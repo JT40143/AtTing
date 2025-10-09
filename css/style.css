@@ -1,0 +1,19 @@
+body {
+    font-family: 'Inter', 'Noto Sans TC', sans-serif;
+}
+.modal { display: none; }
+.modal.active { display: flex; }
+.copy-feedback, .template-feedback { transition: opacity 0.3s ease-out; }
+#calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.calendar-event {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    margin-top: 2px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
